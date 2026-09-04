@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Syntax check
+        run: npm run check
+      - name: Validate Compose
+        run: docker compose config --quiet
+      - name: Build container
+        run: docker build --build-arg VERSION=ci --build-arg REVISION="$GITHUB_SHA" -t mineflayer:ci .
+      - name: Verify non-root runtime
+        run: |
+          test "$(docker run --rm --entrypoint id mineflayer:ci -u)" != "0"
+      - name: Verify packaged Mineflayer version
+        run: |
+          docker run --rm --entrypoint node mineflayer:ci \
+            -e "console.log(require('mineflayer/package.json').version)" | grep -Fx '4.38.0'
