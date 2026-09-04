@@ -1,0 +1,22 @@
+services:
+  mineflayer:
+    image: ghcr.io/ploos-as/mineflayer:latest
+    container_name: mineflayer
+    restart: unless-stopped
+    environment:
+      MC_HOST: ${MC_HOST:-minecraft}
+      MC_PORT: ${MC_PORT:-25565}
+      MC_USERNAME: ${MC_USERNAME:-MineflayerBot}
+      MC_AUTH: ${MC_AUTH:-offline}
+      MC_VERSION: ${MC_VERSION:-}
+      RECONNECT: ${RECONNECT:-true}
+      RECONNECT_INITIAL_MS: ${RECONNECT_INITIAL_MS:-2000}
+      RECONNECT_MAX_MS: ${RECONNECT_MAX_MS:-30000}
+      RECONNECT_FACTOR: ${RECONNECT_FACTOR:-2}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      - ./data:/data
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
